@@ -1,0 +1,11 @@
+import { formatCurrency } from '../components/ProductCard.js';
+import { salePrice } from '../data/products.js';
+
+export function Orders({ orders, products }) {
+  if (!orders.length) return `<main class="page-section orders-page"><div class="page-heading"><div><p class="eyebrow">YOUR SHOP EASY</p><h1>Your orders</h1></div></div><div class="empty-state"><span class="empty-icon">⌂</span><h2>No orders yet.</h2><p>Your next good find is waiting.</p><button class="button button-dark" data-action="navigate" data-page="categories">Start browsing <span>↗</span></button></div></main>`;
+  return `<main class="page-section orders-page"><div class="page-heading"><div><p class="eyebrow">YOUR SHOP EASY</p><h1>Your orders</h1></div><span>${orders.length} demo ${orders.length === 1 ? 'order' : 'orders'}</span></div><div class="orders-list">${orders.map((order) => `<article class="order-card"><div class="order-card-head"><div><span>ORDER ID</span><strong>${escapeHtml(order.id)}</strong><small>${new Date(order.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</small></div><span class="order-status">${escapeHtml(order.status || 'Order Confirmed')}</span></div><div class="order-product-list">${order.lines.map((line) => { const product = products.find((item) => item.id === line.id); const name = line.name || product?.name || 'Product'; const image = line.image || product?.image || ''; const linePrice = line.salePrice ?? (product ? salePrice(product) : 0); return `<div class="order-product"><img src="https://images.unsplash.com/${image}?auto=format&fit=crop&w=120&q=70" alt="${escapeHtml(name)}"><span>${escapeHtml(name)}<small>Qty ${line.quantity}</small></span><strong>${formatCurrency(linePrice * line.quantity)}</strong></div>`; }).join('')}</div><div class="order-card-foot"><span>${escapeHtml(order.payment === 'UPI demo' ? 'PhonePe / UPI demo' : order.payment)}</span><strong>${formatCurrency(order.total)}</strong></div>${order.deliveryDetails?.city ? `<p class="order-delivery-note">Delivering to ${escapeHtml(order.deliveryDetails.city)}, ${escapeHtml(order.deliveryDetails.state)}</p>` : ''}</article>`).join('')}</div></main>`;
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+}
